@@ -29,16 +29,24 @@ MONGODB_URL = os.environ.get('MONGODB_URL', None)
 # MongoDB connection via mongoengine
 import mongoengine
 
-if MONGODB_URL:
-    # Use connection string (for Railway, Render, etc.)
-    mongoengine.connect(host=MONGODB_URL)
-else:
-    # Use individual parameters (for local development)
-    mongoengine.connect(
-        db=MONGO_DBNAME,
-        host=MONGO_HOST,
-        port=MONGO_PORT
-    )
+try:
+    if MONGODB_URL:
+        # Use connection string (for Railway, Render, etc.)
+        print(f"Connecting to MongoDB using connection string...")
+        mongoengine.connect(host=MONGODB_URL, serverSelectionTimeoutMS=5000)
+    else:
+        # Use individual parameters (for local development)
+        print(f"Connecting to MongoDB at {MONGO_HOST}:{MONGO_PORT}/{MONGO_DBNAME}")
+        mongoengine.connect(
+            db=MONGO_DBNAME,
+            host=MONGO_HOST,
+            port=MONGO_PORT,
+            serverSelectionTimeoutMS=5000
+        )
+    print("MongoDB connected successfully!")
+except Exception as e:
+    print(f"MongoDB connection error: {e}")
+    print("App will start but database operations will fail until MongoDB is configured.")
 
 # Dummy database for Django (required but not used)
 DATABASES = {
