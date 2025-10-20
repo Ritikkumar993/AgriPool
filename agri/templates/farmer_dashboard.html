@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Farmer Dashboard - AgriPool{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8" data-aos="fade-up">
+        <h1 class="text-3xl font-bold text-gray-900">Welcome, {{ farmer.username }}!</h1>
+        <p class="text-gray-600 mt-2">Manage your shipments and find transport pooling opportunities</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-lg" data-aos="fade-up">
+            <div class="text-green-600 text-3xl mb-2">📦</div>
+            <div class="text-2xl font-bold">{{ total_shipments }}</div>
+            <div class="text-gray-600">Total Shipments</div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-lg" data-aos="fade-up" data-aos-delay="100">
+            <div class="text-blue-600 text-3xl mb-2">🔄</div>
+            <div class="text-2xl font-bold">{{ open_shipments }}</div>
+            <div class="text-gray-600">Open Requests</div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-lg" data-aos="fade-up" data-aos-delay="200">
+            <div class="text-yellow-600 text-3xl mb-2">🚚</div>
+            <div class="text-2xl font-bold">{{ pooled_shipments }}</div>
+            <div class="text-gray-600">Pooled Shipments</div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-lg" data-aos="fade-up" data-aos-delay="300">
+            <div class="text-purple-600 text-3xl mb-2">⚖️</div>
+            <div class="text-2xl font-bold">{{ total_quantity|floatformat:0 }} kg</div>
+            <div class="text-gray-600">Total Quantity</div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <a href="{% url 'create_shipment' %}" class="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-lg shadow-lg hover:shadow-xl transition" data-aos="fade-up">
+            <div class="text-3xl mb-2">➕</div>
+            <h3 class="text-xl font-bold mb-2">Create Shipment</h3>
+            <p class="text-green-100">Post your produce request</p>
+        </a>
+        <a href="{% url 'transport_list' %}" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow-lg hover:shadow-xl transition" data-aos="fade-up" data-aos-delay="100">
+            <div class="text-3xl mb-2">🔍</div>
+            <h3 class="text-xl font-bold mb-2">Find Transport</h3>
+            <p class="text-blue-100">Browse available options</p>
+        </a>
+        <a href="{% url 'my_bookings' %}" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-lg shadow-lg hover:shadow-xl transition" data-aos="fade-up" data-aos-delay="200">
+            <div class="text-3xl mb-2">📋</div>
+            <h3 class="text-xl font-bold mb-2">My Bookings</h3>
+            <p class="text-purple-100">Track your bookings</p>
+        </a>
+    </div>
+
+    <!-- My Shipments -->
+    <div class="bg-white rounded-lg shadow-lg p-6" data-aos="fade-up">
+        <h2 class="text-2xl font-bold mb-4">My Shipments</h2>
+        {% if shipments %}
+        <div class="space-y-4">
+            {% for shipment in shipments %}
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-semibold text-lg">{{ shipment.crop.name }} - {{ shipment.quantity_kg }} kg</h3>
+                        <p class="text-gray-600 text-sm">From: {{ shipment.pickup_location }}</p>
+                        <p class="text-gray-600 text-sm">To: {{ shipment.destination_market }}</p>
+                        <p class="text-gray-500 text-sm">Ready: {{ shipment.ready_from|date:"M d, Y" }}</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-sm font-medium
+                        {% if shipment.status == 'open' %}bg-green-100 text-green-800
+                        {% elif shipment.status == 'pooled' %}bg-blue-100 text-blue-800
+                        {% elif shipment.status == 'booked' %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ shipment.status|title }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-600">No shipments yet. <a href="{% url 'create_shipment' %}" class="text-green-600 hover:text-green-800">Create your first shipment request</a></p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

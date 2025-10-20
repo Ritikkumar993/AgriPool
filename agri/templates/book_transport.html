@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block title %}Book Transport - AgriPool{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8" data-aos="fade-up">
+        <h1 class="text-3xl font-bold text-gray-900">Book Transport</h1>
+        <p class="text-gray-600 mt-2">Confirm your booking details</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Transport Details -->
+        <div class="bg-white rounded-lg shadow-lg p-6" data-aos="fade-up">
+            <h2 class="text-xl font-bold mb-4 text-green-600">Transport Details</h2>
+            <div class="space-y-3">
+                <div>
+                    <span class="font-medium text-gray-700">Route:</span>
+                    <p class="text-gray-900">{{ transport_offer.from_location }} → {{ transport_offer.to_location }}</p>
+                </div>
+                <div>
+                    <span class="font-medium text-gray-700">Transporter:</span>
+                    <p class="text-gray-900">{{ transport_offer.transporter.username }}</p>
+                </div>
+                <div>
+                    <span class="font-medium text-gray-700">Vehicle:</span>
+                    <p class="text-gray-900">{{ transport_offer.transporter.vehicle_type|title }}</p>
+                </div>
+                <div>
+                    <span class="font-medium text-gray-700">Capacity:</span>
+                    <p class="text-gray-900">{{ transport_offer.capacity_kg }} kg</p>
+                </div>
+                <div>
+                    <span class="font-medium text-gray-700">Price:</span>
+                    <p class="text-2xl font-bold text-green-600">₹{{ transport_offer.price_per_kg }}/kg</p>
+                </div>
+                <div>
+                    <span class="font-medium text-gray-700">Available Date:</span>
+                    <p class="text-gray-900">{{ transport_offer.available_date|date:"M d, Y" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Form -->
+        <div class="bg-white rounded-lg shadow-lg p-6" data-aos="fade-up" data-aos-delay="100">
+            <h2 class="text-xl font-bold mb-4 text-blue-600">Select Your Shipment</h2>
+            
+            {% if error %}
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <strong>Error:</strong> {{ error }}
+            </div>
+            {% endif %}
+            
+            {% if shipments %}
+            <form method="POST" action="{% url 'book_transport' transport_offer.id %}" class="space-y-4">
+                {% csrf_token %}
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Choose Shipment</label>
+                    <select name="shipment_id" required 
+                            id="shipment_select"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                        <option value="">Select a shipment...</option>
+                        {% for shipment in shipments %}
+                        <option value="{{ shipment.id }}" 
+                                data-quantity="{{ shipment.quantity_kg }}"
+                                data-crop="{{ shipment.crop.name }}"
+                                data-destination="{{ shipment.destination_market }}">
+                            {{ shipment.crop.name }} - {{ shipment.quantity_kg }} kg to {{ shipment.destination_market }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Price Negotiation -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <h3 class="font-semibold text-gray-900 mb-3">💰 Price Negotiation</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm text-gray-700 mb-1">Transporter's Price:</label>
+                            <p class="text-2xl font-bold text-gray-900">₹{{ transport_offer.price_per_kg }}/kg</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Your Proposed Price (Optional)
+                                <span class="text-xs text-gray-500">- Leave empty to accept original price</span>
+                            </label>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-gray-600">₹</span>
+                                <input type="number" step="0.01" name="proposed_price_per_kg" 
+                                       id="proposed_price"
+                                       placeholder="{{ transport_offer.price_per_kg }}"
+                                       class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                <span class="text-gray-600">/kg</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">
+                                💡 Tip: Propose a fair price. Transporter can accept, reject, or counter-offer.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="cost_estimate" class="bg-green-50 border border-green-200 rounded-lg p-4 hidden">
+                    <p class="text-sm text-gray-700 mb-2">Estimated Cost:</p>
+                    <p class="text-3xl font-bold text-green-600" id="estimated_cost">₹0</p>
+                    <p class="text-xs text-gray-600 mt-1">
+                        <span id="quantity_display">0</span> kg × ₹<span id="price_display">{{ transport_offer.price_per_kg }}</span>/kg
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Notes (Optional)</label>
+                    <textarea name="notes" rows="3" 
+                              placeholder="Any special instructions or requirements..."
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"></textarea>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="text-sm text-blue-800">
+                        <span class="font-medium">📋 Note:</span> After booking, the transporter will confirm your request. You'll be notified of the status.
+                    </p>
+                </div>
+
+                <div class="flex space-x-4">
+                    <button type="submit" 
+                            class="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+                        Confirm Booking
+                    </button>
+                    <a href="{% url 'transport_list' %}" 
+                       class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition text-center">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+            {% else %}
+            <div class="text-center py-8">
+                <p class="text-gray-600 mb-4">You don't have any open shipments to book.</p>
+                <a href="{% url 'create_shipment' %}" 
+                   class="inline-block bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
+                    Create Shipment
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    const originalPrice = {{ transport_offer.price_per_kg }};
+    const shipmentSelect = document.getElementById('shipment_select');
+    const proposedPriceInput = document.getElementById('proposed_price');
+    const costEstimate = document.getElementById('cost_estimate');
+    const estimatedCost = document.getElementById('estimated_cost');
+    const quantityDisplay = document.getElementById('quantity_display');
+    const priceDisplay = document.getElementById('price_display');
+    
+    let currentQuantity = 0;
+
+    function updateCost() {
+        if (currentQuantity > 0) {
+            const price = proposedPriceInput.value ? parseFloat(proposedPriceInput.value) : originalPrice;
+            const cost = (currentQuantity * price).toFixed(2);
+            estimatedCost.textContent = '₹' + cost;
+            quantityDisplay.textContent = currentQuantity;
+            priceDisplay.textContent = price.toFixed(2);
+            costEstimate.classList.remove('hidden');
+        } else {
+            costEstimate.classList.add('hidden');
+        }
+    }
+
+    shipmentSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        currentQuantity = parseFloat(selectedOption.dataset.quantity) || 0;
+        updateCost();
+    });
+    
+    proposedPriceInput.addEventListener('input', updateCost);
+</script>
+{% endblock %}

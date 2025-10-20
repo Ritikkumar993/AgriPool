@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Transporter Dashboard - AgriPool{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8" data-aos="fade-up">
+        <h1 class="text-3xl font-bold text-gray-900">Welcome, {{ transporter.username }}!</h1>
+        <p class="text-gray-600 mt-2">Manage your transport offers and bookings</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-lg" data-aos="fade-up">
+            <div class="text-blue-600 text-3xl mb-2">🚚</div>
+            <div class="text-2xl font-bold">{{ offers_count }}</div>
+            <div class="text-gray-600">Active Offers</div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-lg" data-aos="fade-up" data-aos-delay="100">
+            <div class="text-green-600 text-3xl mb-2">✅</div>
+            <div class="text-2xl font-bold">{{ completed_trips }}</div>
+            <div class="text-gray-600">Completed Trips</div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-lg" data-aos="fade-up" data-aos-delay="200">
+            <div class="text-yellow-600 text-3xl mb-2">⚖️</div>
+            <div class="text-2xl font-bold">{{ transporter.vehicle_capacity_kg|default:"N/A" }} kg</div>
+            <div class="text-gray-600">Vehicle Capacity</div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-lg" data-aos="fade-up" data-aos-delay="300">
+            <div class="text-purple-600 text-3xl mb-2">💰</div>
+            <div class="text-2xl font-bold">₹{{ total_earnings|default:"0" }}</div>
+            <div class="text-gray-600">Total Earnings</div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <a href="{% url 'add_transport_offer' %}" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow-lg hover:shadow-xl transition" data-aos="fade-up">
+            <div class="text-3xl mb-2">➕</div>
+            <h3 class="text-xl font-bold mb-2">Post Offer</h3>
+            <p class="text-blue-100">Add transport availability</p>
+        </a>
+        <a href="{% url 'transporter_bookings' %}" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-lg shadow-lg hover:shadow-xl transition" data-aos="fade-up" data-aos-delay="100">
+            <div class="text-3xl mb-2">📋</div>
+            <h3 class="text-xl font-bold mb-2">Booking Requests</h3>
+            <p class="text-purple-100">Manage bookings</p>
+        </a>
+        <a href="{% url 'transport_list' %}" class="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-lg shadow-lg hover:shadow-xl transition" data-aos="fade-up" data-aos-delay="200">
+            <div class="text-3xl mb-2">🔍</div>
+            <h3 class="text-xl font-bold mb-2">Browse Requests</h3>
+            <p class="text-green-100">View shipment requests</p>
+        </a>
+    </div>
+
+    <!-- My Transport Offers -->
+    <div class="bg-white rounded-lg shadow-lg p-6" data-aos="fade-up">
+        <h2 class="text-2xl font-bold mb-4">My Transport Offers</h2>
+        {% if offers %}
+        <div class="space-y-4">
+            {% for offer in offers %}
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-semibold text-lg">{{ offer.from_location }} → {{ offer.to_location }}</h3>
+                        <p class="text-gray-600 text-sm">Capacity: {{ offer.capacity_kg }} kg</p>
+                        <p class="text-gray-600 text-sm">Price: ₹{{ offer.price_per_kg }}/kg</p>
+                        <p class="text-gray-500 text-sm">Available: {{ offer.available_date|date:"M d, Y" }}</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-sm font-medium
+                        {% if offer.status == 'available' %}bg-green-100 text-green-800
+                        {% elif offer.status == 'booked' %}bg-blue-100 text-blue-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ offer.status|title }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-600">No offers yet. <a href="{% url 'add_transport_offer' %}" class="text-blue-600 hover:text-blue-800">Post your first offer</a></p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

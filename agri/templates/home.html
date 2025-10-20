@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="relative bg-gradient-to-r from-green-600 to-green-800 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div class="text-center" data-aos="fade-up">
+            <h1 class="text-5xl font-bold mb-6">Welcome to AgriPool</h1>
+            <p class="text-xl mb-8 text-green-100">Pool Your Agricultural Produce Transport & Save Costs</p>
+            <div class="flex justify-center space-x-4">
+                <a href="{% url 'transport_list' %}" class="bg-white text-green-600 px-8 py-3 rounded-lg font-semibold hover:bg-green-50 transition">Find Transport</a>
+                <a href="{% url 'register' %}" class="bg-green-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-400 transition">Get Started</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h2 class="text-3xl font-bold text-center mb-12" data-aos="fade-up">Our Services</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition" data-aos="fade-up" data-aos-delay="100">
+            <div class="text-4xl mb-4">🚚</div>
+            <h3 class="text-xl font-bold mb-3">Pool Transport</h3>
+            <p class="text-gray-600">Combine your produce with other farmers going to the same market and share transport costs.</p>
+        </div>
+        <div class="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition" data-aos="fade-up" data-aos-delay="200">
+            <div class="text-4xl mb-4">💰</div>
+            <h3 class="text-xl font-bold mb-3">Save Money</h3>
+            <p class="text-gray-600">Reduce logistics costs by up to 40% through shared transportation to markets.</p>
+        </div>
+        <div class="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition" data-aos="fade-up" data-aos-delay="300">
+            <div class="text-4xl mb-4">📊</div>
+            <h3 class="text-xl font-bold mb-3">Track Shipments</h3>
+            <p class="text-gray-600">Monitor your shipments, pooling status, and transport bookings in real-time.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section -->
+<div class="bg-green-600 text-white py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+            <div data-aos="fade-up">
+                <div class="text-4xl font-bold mb-2">500+</div>
+                <div class="text-green-100">Active Farmers</div>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="100">
+                <div class="text-4xl font-bold mb-2">200+</div>
+                <div class="text-green-100">Transporters</div>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="200">
+                <div class="text-4xl font-bold mb-2">1000+</div>
+                <div class="text-green-100">Successful Trips</div>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="300">
+                <div class="text-4xl font-bold mb-2">₹50L+</div>
+                <div class="text-green-100">Cost Saved</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Testimonials -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h2 class="text-3xl font-bold text-center mb-12" data-aos="fade-up">What Farmers Say</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-white p-6 rounded-lg shadow-lg" data-aos="fade-up">
+            <p class="text-gray-600 mb-4">"AgriPool helped me pool transport with 3 other farmers. Saved ₹5000 on one trip!"</p>
+            <div class="font-semibold">- Ramesh Kumar, Maharashtra</div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-lg" data-aos="fade-up" data-aos-delay="100">
+            <p class="text-gray-600 mb-4">"Found a transporter going to the same market. Shared the truck and cut costs in half!"</p>
+            <div class="font-semibold">- Priya Singh, Punjab</div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-lg" data-aos="fade-up" data-aos-delay="200">
+            <p class="text-gray-600 mb-4">"Easy to use and very helpful for small farmers like me. Thank you AgriPool!"</p>
+            <div class="font-semibold">- Suresh Patel, Gujarat</div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="bg-gradient-to-r from-green-500 to-green-700 text-white py-16">
+    <div class="max-w-4xl mx-auto text-center px-4" data-aos="fade-up">
+        <h2 class="text-3xl font-bold mb-4">Ready to Transform Your Farming?</h2>
+        <p class="text-xl mb-8 text-green-100">Join thousands of farmers already using AgriPool</p>
+        <a href="{% url 'register' %}" class="bg-white text-green-600 px-8 py-3 rounded-lg font-semibold hover:bg-green-50 transition inline-block">Sign Up Now</a>
+    </div>
+</div>
+{% endblock %}

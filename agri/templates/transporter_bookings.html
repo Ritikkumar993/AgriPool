@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking Requests - AgriPool{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8" data-aos="fade-up">
+        <h1 class="text-3xl font-bold text-gray-900">Booking Requests</h1>
+        <p class="text-gray-600 mt-2">Manage bookings for your transport offers</p>
+    </div>
+
+    {% if bookings %}
+    <div class="space-y-4">
+        {% for booking in bookings %}
+        <div class="bg-white rounded-lg shadow-lg p-6" data-aos="fade-up">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900">{{ booking.shipment.crop.name }} - {{ booking.shipment.quantity_kg }} kg</h3>
+                    <p class="text-sm text-gray-600">Booking ID: {{ booking.id }}</p>
+                </div>
+                <span class="px-4 py-2 rounded-full text-sm font-medium
+                    {% if booking.status == 'pending' %}bg-yellow-100 text-yellow-800
+                    {% elif booking.status == 'confirmed' %}bg-blue-100 text-blue-800
+                    {% elif booking.status == 'in_transit' %}bg-purple-100 text-purple-800
+                    {% elif booking.status == 'completed' %}bg-green-100 text-green-800
+                    {% else %}bg-red-100 text-red-800{% endif %}">
+                    {{ booking.status|title }}
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <div>
+                    <p class="text-sm text-gray-600">Farmer</p>
+                    <p class="font-medium">{{ booking.farmer.username }}</p>
+                    <p class="text-sm text-gray-500">📞 {{ booking.farmer.phone }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Pickup</p>
+                    <p class="font-medium">{{ booking.shipment.pickup_location }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Destination</p>
+                    <p class="font-medium">{{ booking.shipment.destination_market }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Price Details</p>
+                    <p class="text-sm">Your Price: ₹{{ booking.original_price_per_kg }}/kg</p>
+                    {% if booking.proposed_price_per_kg != booking.original_price_per_kg %}
+                    <p class="text-sm text-blue-600 font-medium">Farmer's Offer: ₹{{ booking.proposed_price_per_kg }}/kg</p>
+                    {% endif %}
+                    <p class="text-lg font-bold text-green-600">Total: ₹{{ booking.estimated_cost }}</p>
+                </div>
+            </div>
+            
+            <!-- Price Negotiation Actions -->
+            {% if booking.negotiation_status == 'pending' and booking.status == 'pending' %}
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                <p class="text-sm text-yellow-800 mb-3">
+                    <span class="font-medium">💰 Price Negotiation:</span> 
+                    {% if booking.proposed_price_per_kg < booking.original_price_per_kg %}
+                    Farmer proposed ₹{{ booking.proposed_price_per_kg }}/kg (₹{{ booking.original_price_per_kg|floatformat:2|add:"-"|add:booking.proposed_price_per_kg|floatformat:2 }} less than your price)
+                    {% else %}
+                    Farmer accepted your price of ₹{{ booking.proposed_price_per_kg }}/kg
+                    {% endif %}
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <form method="POST" action="{% url 'respond_to_negotiation' booking.id %}" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="accept">
+                        <button type="submit" 
+                                class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition text-sm">
+                            ✓ Accept Offer
+                        </button>
+                    </form>
+                    
+                    <div x-data="{ showCounter: false }">
+                        <button @click="showCounter = !showCounter" type="button"
+                                class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm">
+                            💬 Counter Offer
+                        </button>
+                        <div x-show="showCounter" class="mt-2 p-3 bg-white rounded border">
+                            <form method="POST" action="{% url 'respond_to_negotiation' booking.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="counter">
+                                <label class="block text-xs text-gray-700 mb-1">Your Counter Price (₹/kg):</label>
+                                <input type="number" step="0.01" name="counter_price" required
+                                       class="w-full px-2 py-1 border rounded text-sm mb-2">
+                                <textarea name="notes" placeholder="Optional note..." rows="2"
+                                          class="w-full px-2 py-1 border rounded text-xs mb-2"></textarea>
+                                <button type="submit" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs">
+                                    Send Counter
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <form method="POST" action="{% url 'respond_to_negotiation' booking.id %}" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="reject">
+                        <input type="hidden" name="notes" value="Price too low">
+                        <button type="submit" 
+                                class="w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm">
+                            ✗ Reject
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if booking.notes %}
+            <div class="bg-gray-50 rounded p-3 mb-4">
+                <p class="text-sm text-gray-600"><span class="font-medium">Notes:</span> {{ booking.notes }}</p>
+            </div>
+            {% endif %}
+
+            <div class="border-t pt-4 flex justify-between items-center">
+                <p class="text-sm text-gray-600">Booked: {{ booking.booking_date|date:"M d, Y H:i" }}</p>
+                
+                {% if booking.status == 'confirmed' and booking.negotiation_status == 'accepted' %}
+                <form method="POST" action="{% url 'update_booking_status' booking.id %}" class="inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="in_transit">
+                    <button type="submit" 
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm">
+                        🚚 Mark In Transit
+                    </button>
+                </form>
+                {% elif booking.status == 'in_transit' %}
+                <form method="POST" action="{% url 'update_booking_status' booking.id %}" class="inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="completed">
+                    <button type="submit" 
+                            class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition text-sm">
+                        ✓ Mark Completed
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white rounded-lg shadow-lg p-12 text-center" data-aos="fade-up">
+        <div class="text-6xl mb-4">📋</div>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">No booking requests yet</h3>
+        <p class="text-gray-600 mb-6">Farmers will book your transport offers</p>
+        <a href="{% url 'transporter_dashboard' %}" 
+           class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+            Go to Dashboard
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
