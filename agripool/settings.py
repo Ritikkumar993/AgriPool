@@ -3,9 +3,9 @@ from pathlib import Path
 from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'changeme-for-dev')
-DEBUG = True
-ALLOWED_HOSTS = ['*']
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'changeme-for-dev-only-not-for-production')
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.auth',
@@ -19,14 +19,21 @@ INSTALLED_APPS = [
 MONGO_HOST = os.environ.get('MONGO_HOST', 'localhost')
 MONGO_PORT = int(os.environ.get('MONGO_PORT', 27017))
 MONGO_DBNAME = os.environ.get('MONGO_DBNAME', 'agripool')
+MONGODB_URL = os.environ.get('MONGODB_URL', None)
 
 # MongoDB connection via mongoengine
 import mongoengine
-mongoengine.connect(
-    db=MONGO_DBNAME,
-    host=MONGO_HOST,
-    port=MONGO_PORT
-)
+
+if MONGODB_URL:
+    # Use connection string (for Railway, Render, etc.)
+    mongoengine.connect(host=MONGODB_URL)
+else:
+    # Use individual parameters (for local development)
+    mongoengine.connect(
+        db=MONGO_DBNAME,
+        host=MONGO_HOST,
+        port=MONGO_PORT
+    )
 
 # Dummy database for Django (required but not used)
 DATABASES = {
