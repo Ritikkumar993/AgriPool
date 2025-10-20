@@ -26,27 +26,37 @@ MONGO_PORT = int(os.environ.get('MONGO_PORT', 27017))
 MONGO_DBNAME = os.environ.get('MONGO_DBNAME', 'agripool')
 MONGODB_URL = os.environ.get('MONGODB_URL', None)
 
+# Debug: Print what we're seeing
+print("=" * 50)
+print("MONGODB CONFIGURATION DEBUG")
+print("=" * 50)
+print(f"MONGODB_URL environment variable: {MONGODB_URL}")
+print(f"MONGO_HOST: {MONGO_HOST}")
+print(f"MONGO_PORT: {MONGO_PORT}")
+print(f"MONGO_DBNAME: {MONGO_DBNAME}")
+print("=" * 50)
+
 # MongoDB connection via mongoengine
 import mongoengine
 
 try:
     if MONGODB_URL:
         # Use connection string (for Railway, Render, etc.)
-        print(f"Connecting to MongoDB using connection string...")
+        print(f"✓ Using MONGODB_URL connection string")
         mongoengine.connect(host=MONGODB_URL, serverSelectionTimeoutMS=5000)
     else:
         # Use individual parameters (for local development)
-        print(f"Connecting to MongoDB at {MONGO_HOST}:{MONGO_PORT}/{MONGO_DBNAME}")
+        print(f"✓ Using individual parameters: {MONGO_HOST}:{MONGO_PORT}/{MONGO_DBNAME}")
         mongoengine.connect(
             db=MONGO_DBNAME,
             host=MONGO_HOST,
             port=MONGO_PORT,
             serverSelectionTimeoutMS=5000
         )
-    print("MongoDB connected successfully!")
+    print("✓ MongoDB connected successfully!")
 except Exception as e:
-    print(f"MongoDB connection error: {e}")
-    print("App will start but database operations will fail until MongoDB is configured.")
+    print(f"✗ MongoDB connection error: {e}")
+    print("✗ App will start but database operations will fail until MongoDB is configured.")
 
 # Dummy database for Django (required but not used)
 DATABASES = {
