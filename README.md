@@ -174,7 +174,22 @@ docker compose down
 
 ## 📝 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+### What does MIT License mean?
+
+✅ **You CAN:**
+- Use commercially
+- Modify the code
+- Distribute
+- Use privately
+- Sublicense
+
+❌ **You CANNOT:**
+- Hold the author liable
+
+📋 **You MUST:**
+- Include the original license and copyright notice
 
 ## 👥 Contributing
 
