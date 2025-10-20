@@ -43,7 +43,12 @@ try:
     if MONGODB_URL:
         # Use connection string (for Railway, Render, etc.)
         print(f"✓ Using MONGODB_URL connection string")
-        mongoengine.connect(host=MONGODB_URL, serverSelectionTimeoutMS=5000)
+        mongoengine.connect(
+            db=MONGO_DBNAME,
+            host=MONGODB_URL,
+            alias='default',
+            serverSelectionTimeoutMS=5000
+        )
     else:
         # Use individual parameters (for local development)
         print(f"✓ Using individual parameters: {MONGO_HOST}:{MONGO_PORT}/{MONGO_DBNAME}")
@@ -51,6 +56,7 @@ try:
             db=MONGO_DBNAME,
             host=MONGO_HOST,
             port=MONGO_PORT,
+            alias='default',
             serverSelectionTimeoutMS=5000
         )
     print("✓ MongoDB connected successfully!")
